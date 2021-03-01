@@ -1,0 +1,22 @@
+version: "3.9"
+services: 
+  api:
+    build:
+      context: ./api
+    container_name: RoomSchedulerAPI
+    depends_on: 
+      - db
+    ports:
+      - 31414:80
+
+  db:
+    image: mysql
+    container_name: RoomSchedulerDB
+    environment:
+      MYSQL_ROOT_PASSWORD: dubbsdibbets
+      MYSQL_DATABASE: RoomScheduler
+    ports:
+      - 31415:3306
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+
