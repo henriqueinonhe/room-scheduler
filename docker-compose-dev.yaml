@@ -3,14 +3,16 @@ services:
   api:
     build:
       context: ./api
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile-dev
     container_name: RoomSchedulerAPI
     depends_on: 
       - db
     ports:
       - 31414:80
     volumes:
-      - ./api:/home/app
+      - type: bind
+        source: ./api
+        target: /home/app
 
   db:
     image: mysql

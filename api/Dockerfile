@@ -1,9 +1,11 @@
 FROM node:lts-alpine
 
-COPY . /home/app/
+WORKDIR /home/app
 
-RUN cd /home/app && npm ci
+COPY . .
+
+RUN npm ci
 
 EXPOSE 80
 
-CMD ["node", "/home/app/index.js"]
+CMD ["node", "index.js"]

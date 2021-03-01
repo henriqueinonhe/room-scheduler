@@ -1,7 +1,0 @@
-FROM node:lts-alpine
-
-COPY . /home/app/
-
-EXPOSE 80
-
-CMD ["nodemon", "/home/app/index.js"]

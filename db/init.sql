@@ -12,6 +12,15 @@ CREATE TABLE `Rooms` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+CREATE TABLE `Sessions` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `sessionId` varchar(64) NOT NULL,
+  `fkUser` int unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `Sessions_FK` (`fkUser`),
+  CONSTRAINT `Sessions_FK` FOREIGN KEY (`fkUser`) REFERENCES `Users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
 CREATE TABLE `Allocations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `fkUsers` int unsigned NOT NULL,
@@ -24,4 +33,3 @@ CREATE TABLE `Allocations` (
   CONSTRAINT `Allocations_FK` FOREIGN KEY (`fkUsers`) REFERENCES `Users` (`id`),
   CONSTRAINT `Allocations_FK_1` FOREIGN KEY (`fkRooms`) REFERENCES `Rooms` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-

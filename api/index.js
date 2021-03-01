@@ -5,8 +5,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-app.get("/", (req, res) => {
-  res.send("Ok!");
+app.get("/check", (req, res) => {
+  res.send("Oksadasd!");
 });
 
 app.listen(80, () => {
