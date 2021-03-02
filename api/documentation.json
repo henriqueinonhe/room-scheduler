@@ -31,6 +31,96 @@
         }
       }
     },
+    "/users": {
+      "summary": "Users",
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "description": "User name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "role",
+            "description": "User role",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/CreatedBeforeParameter"
+          },
+          {
+            "$ref": "#/components/parameters/CreatedAfterParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Users fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSchema"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSchema"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/InvalidDataErrorResponse"
+          }
+        }
+      }
+    },
     "/users/{id}": {
       "get": {
         "tags": [
@@ -146,22 +236,63 @@
         }
       }
     },
-    "/users": {
-      "summary": "Users",
+    "/users/{id}/schedule": {
       "get": {
-        "tags": [
-          "Users"
+        "tags": ["Schedule"],
+        "description": "Retrieves a user's schedule on a specific day.",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/DateParameter"
+          }
         ],
         "responses": {
           "200": {
-            "description": "Users fetched successfully",
+            "description": "User schedule fetched successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/UserSchema"
+                    "$ref": "#/components/schemas/UserScheduleEntrySchema"
                   }
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref":  "#/components/responses/ForbiddenErrorResponse"
+          }
+        }
+      }
+    },
+    "/rooms": {
+      "get": {
+        "tags": [
+          "Rooms"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "description": "Room name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/CreatedBeforeParameter"
+          },
+          {
+            "$ref": "#/components/parameters/CreatedAfterParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rooms fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomSchema"
                 }
               }
             }
@@ -173,18 +304,16 @@
       },
       "post": {
         "tags": [
-          "Users"
+          "Rooms"
         ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "username": {
-                    "type": "string"
-                  },
-                  "password": {
+                  "name": {
                     "type": "string"
                   }
                 }
@@ -194,17 +323,159 @@
         },
         "responses": {
           "201": {
-            "description": "User added successfully",
+            "description": "Room created successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserSchema"
+                  "$ref": "#/components/schemas/RoomSchema"
                 }
               }
             }
           },
           "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "422": {
             "$ref": "#/components/responses/InvalidDataErrorResponse"
+          }
+        }
+      }
+    },
+    "/rooms/{id}": {
+      "get": {
+        "tags": [
+          "Rooms"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Room id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref":  "#/components/schemas/RoomSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Rooms"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Room id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Room updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/InvalidDataErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Rooms"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "Room id",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Room delete successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref":  "#/components/schemas/RoomSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenErrorResponse"
+          }
+        }
+      }
+    },
+    "/rooms/{id}/schedule": {
+      "get": {
+        "tags": ["Schedule"],
+        "description": "Retrieves room schedule",
+        "parameters": [
+          {
+            "$ref":  "#/components/parameters/DateParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scheduled fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref":  "#/components/schemas/RoomScheduleEntrySchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "$ref":  "#/components/responses/ForbiddenErrorResponse"
           }
         }
       }
@@ -303,6 +574,39 @@
             "type": "string"
           }
         }
+      },
+      "RoomSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        }
+      },
+      "UserScheduleEntrySchema": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "string"
+          },
+          "room": {
+            "$ref": "#/components/schemas/RoomSchema"
+          }
+        }
+      },
+      "RoomScheduleEntrySchema": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "string"
+          },
+          "user": {
+            "$ref":  "#/components/schemas/UserSchema"
+          }
+        }
       }
     },
     "responses": {
@@ -334,6 +638,32 @@
               "$ref": "#/components/schemas/ErrorResponseContentSchema"
             }
           }
+        }
+      }
+    },
+    "parameters": {
+      "CreatedBeforeParameter": {
+        "in": "query",
+        "name": "createdBefore",
+        "description": "Created at lower bound",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "CreatedAfterParameter": {
+        "in": "query",
+        "name": "createdAfter",
+        "description": "Created at upper bound",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "DateParameter": {
+        "in": "query",
+        "name": "date",
+        "description": "Date",
+        "schema": {
+          "type": "string"
         }
       }
     }
