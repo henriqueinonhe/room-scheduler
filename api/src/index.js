@@ -1,20 +1,25 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import { db } from "./db.js";
+import { ensureDbConnection } from "./db.js";
 
-const app = express();
-app.use(express.json());
-app.use(cors());
+async function main() {
+  const app = express();
+  app.use(express.json());
+  app.use(cors());
+  
+  app.use("/docs", express.static("../docs"));
+  
+  app.get("/check", (req, res) => {
+    res.send("API is up and running!");
+  });
+  
+  await ensureDbConnection();
 
-app.use("/docs", express.static("../docs"));
+  app.listen(80, () => {
+    console.log("API up!");
+  });
+}
 
-app.get("/check", (req, res) => {
-  res.send("API is up and running!");
-});
+main();
 
-app.listen(80, () => {
-  console.log("API up!");
-});
 
-db.authenticate();
