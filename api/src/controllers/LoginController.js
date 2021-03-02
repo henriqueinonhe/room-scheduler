@@ -1,9 +1,11 @@
 export class LoginController {
-  static async login(username, password) {
+  static async login(req, res, next) {
     //TODO
+    next();
   }
 
-  static async logout() {
+  static async logout(req, res, next) {
     //TODO
+    next();
   }
 }
