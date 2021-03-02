@@ -1,11 +1,7 @@
 import express from "express";
+import { LoginController } from "../controllers/LoginController";
 
 export const loginRouter = express.Router();
 
-loginRouter.get("/login", (req, res, next) => {
-  //TODO
-});
-
-loginRouter.get("/logout", (req, res, next) => {
-  //TODO
-});
+loginRouter.get("/login", LoginController.login);
+loginRouter.get("/logout", LoginController.logout);
