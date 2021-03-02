@@ -10,16 +10,22 @@ services:
     ports:
       - 31414:80
     volumes:
-      - ./api:/home/app:rw
+      - ./api:/home/app
+    env_file:
+      - ./api/.env
 
   db:
     image: mysql
     container_name: RoomSchedulerDB
     environment:
+      MYSQL_USER: "admin"
+      MYSQL_PASSWORD: dubbsdibbets
       MYSQL_ROOT_PASSWORD: dubbsdibbets
       MYSQL_DATABASE: RoomScheduler
     ports:
       - 31415:3306
     volumes:
       - ./db:/docker-entrypoint-initdb.d
+    # command: --default-authentication-plugin=mysql_native_password
+
 
