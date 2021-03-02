@@ -1,7 +1,0 @@
-FROM node:lts-alpine
-
-EXPOSE 80
-
-WORKDIR /home/app
-
-CMD ["npx", "nodemon", "index.js"]
