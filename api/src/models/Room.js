@@ -1,0 +1,17 @@
+import { DataTypes } from "sequelize";
+import { db } from "../db.js";
+
+export const Room = db.define("Room", {
+  id: {
+    type: DataTypes.INTEGER.UNSIGNED,
+    allowNull: false,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+}, {
+    updatedAt: false
+});

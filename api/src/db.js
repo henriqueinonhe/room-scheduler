@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
-import dotenv from "dotenv";
 import { wait } from "./helpers/wait.js";
+import dotenv from "dotenv";
 
 dotenv.config();
 

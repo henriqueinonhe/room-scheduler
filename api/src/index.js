@@ -1,6 +1,11 @@
 import express from "express";
 import cors from "cors";
 import { ensureDbConnection } from "./db.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+
+console.log(process.env.DB_DATABASE);
 
 async function main() {
   const app = express();
