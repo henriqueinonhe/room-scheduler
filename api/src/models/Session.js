@@ -24,3 +24,6 @@ export const Session = db.define("Session", {
 Session.belongsTo(User, {
   foreignKey: "fkUser"
 });
+User.hasOne(Session, {
+  foreignKey: "fkUser"
+});

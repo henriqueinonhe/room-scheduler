@@ -1,8 +1,11 @@
 import { User } from "../models/User.js";
 import { db, ensureDbConnection } from "../db.js";
 
-export function clearDb() {
-  
+export async function clearDb() {
+  await clearAllocations();
+  await clearSessions();
+  await clearRooms();
+  await clearUsers();
 }
 
 export async function clearUsers() {
@@ -18,4 +21,9 @@ export async function clearRooms() {
 export async function clearSessions() {
   await db.query("DELETE FROM Sessions WHERE 1 = 1");
   await db.query("ALTER TABLE Sessions AUTO_INCREMENT = 1");
+}
+
+export async function clearAllocations() {
+  await db.query("DELETE FROM Allocations WHERE 1 = 1");
+  await db.query("ALTER TABLE Allocations AUTO_INCREMENT = 1");
 }
