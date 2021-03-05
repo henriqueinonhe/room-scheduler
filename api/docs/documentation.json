@@ -90,7 +90,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "username": {
+                  "userName": {
                     "type": "string"
                   },
                   "password": {
@@ -510,7 +510,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "username": {
+                  "userName": {
                     "type": "string"
                   },
                   "password": {
