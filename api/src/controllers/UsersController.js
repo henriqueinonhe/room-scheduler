@@ -1,6 +1,10 @@
 import { User } from "../models/User.js";
 import { ValidationError, ValidationErrorEntry } from "../exceptions/ValidationError.js";
 import crypto from "crypto";
+import Sequelize from "sequelize";
+import { renameSync } from "fs";
+
+const { Op } = Sequelize;
 
 export class UsersController {
   
@@ -64,13 +68,41 @@ export class UsersController {
   }
 
   static async fetchUsers(req, res, next) {
-    //TODO
-    next();
+    const {
+      userName = "",
+      role = "",
+      createdBefore = "1900-01-01",
+      createdAfter = "3000-01-01"
+    } = req.query;
+
+    const fetchedUsers = await User.findAll({
+      where: {
+        userName: {
+          [Op.like]: `%${userName}%`
+        },
+        role: {
+          [Op.like]: `%${role}%`
+        },
+        createdAt: {
+          [Op.between]: [
+            createdBefore,
+            createdAfter
+          ]
+        }
+      }
+    });
+
+    res.send(fetchedUsers);
   }
 
   static async fetchSingleUser(req, res, next) {
-    //TODO
-    next();
+    const id = req.params["id"];
+
+    res.send(await User.findOne({
+      where: {
+        id
+      }
+    }));
   }
 
   static async createUser(req, res, next) {
@@ -104,12 +136,60 @@ export class UsersController {
   }
 
   static async updateUser(req, res, next) {
-    //TODO
-    next();
+    const id = req.params["id"];
+    const user = await User.findOne({
+      where: { id }
+    });
+
+    if(!user) {
+      next(new ValidationError([
+        new ValidationErrorEntry("There is no user associated with this id!", "UserToUpdateNotFound")
+      ]));
+      return;
+    }
+
+    const {
+      userName = "",
+      password = ""
+    } = req.body;
+
+    try {
+      const validationError = new ValidationError();
+      const trimmedUserName = userName.trim();
+      validationError.addEntry(...await UsersController.validateUserName(trimmedUserName));
+      validationError.addEntry(...await UsersController.validatePassword(password));
+  
+      if(validationError.hasErrors()) {
+        throw validationError;
+      }
+  
+      const passwordHash = await UsersController.hashPassword(password);
+      user.userName = userName;
+      user.passwordHash = passwordHash;
+      await user.save();
+
+      res.status(201).send(user);
+    }
+    catch(error) {
+      next(error);  
+    }
   }
 
   static async deleteUser(req, res, next) {
-    //TODO
-    next();
+    const id = req.params["id"];
+    const user = await User.findOne({ where : { id }});
+
+    if(!user) {
+      const error = new ValidationError([
+        new ValidationErrorEntry("There is no user associated with this id!", "UserToDeleteNotFound")
+      ]);
+      next(error);
+      return;
+    }
+
+    await user.destroy();
+    res.send(user);
+
+    //TODO Cascade allocations
   }
 }

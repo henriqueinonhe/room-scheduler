@@ -40,7 +40,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "name",
+            "name": "userName",
             "description": "User name",
             "schema": {
               "type": "string"
@@ -174,7 +174,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "username": {
+                  "userName": {
                     "type": "string"
                   },
                   "password": {
