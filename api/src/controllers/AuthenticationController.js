@@ -62,7 +62,7 @@ export class AuthenticationController {
 
       const session = await Session.findOne({
         where: {
-          id: sessionId
+          sessionId
         },
         include: User
       });
@@ -71,7 +71,7 @@ export class AuthenticationController {
         throw new AuthenticationError("This session is either invalid or has already expired!");
       }
 
-      res.send(session.getUser());
+      res.send(session.User);
     }
     catch(error) {
       next(error);
