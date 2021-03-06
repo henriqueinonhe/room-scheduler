@@ -21,7 +21,7 @@ export class AuthenticationController {
       });
   
       if(!user) {
-        throw new AuthenticationError("User name and/or password don't match!");
+        throw new AuthenticationError("User name and/or password don't match!", "LoginFail");
       }
   
       //Clear previous sessions
@@ -52,15 +52,32 @@ export class AuthenticationController {
   }
 
   static async logout(req, res, next) {
+    try {
+      const sessionId = req.cookies["sessionId"];
+      if(sessionId === undefined) {
+        throw new AuthenticationError("No sessionId received!", "NoSession");
+      }
 
+      await Session.destroy({
+        where: {
+          sessionId
+        }
+      });
+
+      res.cookie("sessionId", "", { maxAge: 0 });
+      res.send("Logout successful!");
+    }
+    catch(error) {
+      next(error);
+      return;
+    }
   }
 
   static async checkSession(req, res, next) {
     try {
       const sessionId = req.cookies["sessionId"];
-  
       if(sessionId === undefined) {
-        throw new AuthenticationError("No sessionId received!");
+        throw new AuthenticationError("No sessionId received!", "NoSession");
       }
 
       const session = await Session.findOne({
@@ -71,7 +88,7 @@ export class AuthenticationController {
       });
   
       if(!session) {
-        throw new AuthenticationError("This session is either invalid or has already expired!");
+        throw new AuthenticationError("This session is either invalid or has already expired!", "InvalidOrExpiredSession");
       }
 
       res.send(session.User);
