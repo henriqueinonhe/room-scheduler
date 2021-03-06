@@ -14,7 +14,7 @@ CREATE TABLE `Rooms` (
   `createdAt` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `Rooms_UN` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `Sessions` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -23,8 +23,8 @@ CREATE TABLE `Sessions` (
   `createdAt` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `Sessions_FK` (`fkUser`),
-  CONSTRAINT `Sessions_FK` FOREIGN KEY (`fkUser`) REFERENCES `Users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `Sessions_FK_1` FOREIGN KEY (`fkUser`) REFERENCES `Users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 CREATE TABLE `Allocations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -36,6 +36,6 @@ CREATE TABLE `Allocations` (
   PRIMARY KEY (`id`),
   KEY `Allocations_FK` (`fkUser`),
   KEY `Allocations_FK_1` (`fkRoom`),
-  CONSTRAINT `Allocations_FK` FOREIGN KEY (`fkUser`) REFERENCES `Users` (`id`),
-  CONSTRAINT `Allocations_FK_1` FOREIGN KEY (`fkRoom`) REFERENCES `Rooms` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `Allocations_FK` FOREIGN KEY (`fkRoom`) REFERENCES `Rooms` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `Allocations_FK_1` FOREIGN KEY (`fkUser`) REFERENCES `Users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci

@@ -27,5 +27,6 @@ Session.belongsTo(User, {
   foreignKey: "fkUser"
 });
 User.hasOne(Session, {
-  foreignKey: "fkUser"
+  foreignKey: "fkUser",
+  onDelete: "CASCADE"
 });

@@ -37,8 +37,10 @@ Allocation.belongsTo(Room, {
   foreignKey: "fkRoom"
 });
 User.hasOne(Allocation, {
-  foreignKey: "fkUser"
+  foreignKey: "fkUser",
+  onDelete: "CASCADE"
 });
 Room.hasOne(Allocation, {
-  foreignKey: "fkRoom"
+  foreignKey: "fkRoom",
+  onDelete: "CASCADE"
 });

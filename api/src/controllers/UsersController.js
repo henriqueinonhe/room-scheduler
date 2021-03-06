@@ -232,7 +232,6 @@ export class UsersController {
       } = user.get();
       res.send(userWithoutPassword);
   
-      //TODO Cascade allocations
     }
     catch(error) {
       next(error);
