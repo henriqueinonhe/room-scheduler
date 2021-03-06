@@ -59,75 +59,89 @@ export class UsersController {
   }
 
   static async fetchUsers(req, res, next) {
-    const {
-      userName = "",
-      role = "",
-      createdBefore = "1900-01-01",
-      createdAfter = "3000-01-01"
-    } = req.query;
-
-    const fetchedUsers = await User.findAll({
-      where: {
-        userName: {
-          [Op.like]: `%${userName}%`
-        },
-        role: {
-          [Op.like]: `%${role}%`
-        },
-        createdAt: {
-          [Op.between]: [
-            createdBefore,
-            createdAfter
-          ]
+    try {
+      const {
+        userName = "",
+        role = "",
+        createdBefore = "1900-01-01",
+        createdAfter = "3000-01-01"
+      } = req.query;
+  
+      const fetchedUsers = await User.findAll({
+        where: {
+          userName: {
+            [Op.like]: `%${userName}%`
+          },
+          role: {
+            [Op.like]: `%${role}%`
+          },
+          createdAt: {
+            [Op.between]: [
+              createdBefore,
+              createdAfter
+            ]
+          }
         }
-      }
-    });
-
-    res.send(fetchedUsers);
+      });
+  
+      res.send(fetchedUsers);
+    }
+    catch(error) {
+      next(error);
+      return;
+    }
   }
 
   static async fetchSingleUser(req, res, next) {
-    const id = req.params["id"];
-
-    res.send(await User.findOne({
-      where: {
-        id
-      }
-    }));
+    try {
+      const id = req.params["id"];
+  
+      res.send(await User.findOne({
+        where: {
+          id
+        }
+      }));
+    }
+    catch(error) {
+      next(error);
+      return;
+    }
   }
 
   static async createUser(req, res, next) {
-    const {
-      userName = "",
-      password = ""
-    } = req.body;
-
     try {
-      const validationError = new ValidationError();
-      const trimmedUserName = userName.trim();
-      validationError.addEntry(...await UsersController.validateUserName(trimmedUserName));
-      validationError.addEntry(...await UsersController.validatePassword(password));
+      const {
+        userName = "",
+        password = ""
+      } = req.body;
   
-      if(validationError.hasErrors()) {
-        throw validationError;
-      }
+        const validationError = new ValidationError();
+        const trimmedUserName = userName.trim();
+        validationError.addEntry(...await UsersController.validateUserName(trimmedUserName));
+        validationError.addEntry(...await UsersController.validatePassword(password));
+    
+        if(validationError.hasErrors()) {
+          throw validationError;
+        }
+    
+        const passwordHash = await hashPassword(password);
+        const user = await User.create({
+          userName: trimmedUserName,
+          passwordHash,
+          role: "common"
+        });
   
-      const passwordHash = await hashPassword(password);
-      const user = await User.create({
-        userName: trimmedUserName,
-        passwordHash,
-        role: "common"
-      });
-
-      res.status(201).send(user);
+        res.status(201).send(user);
     }
     catch(error) {
-      next(error);   
+      next(error);
+      return;
     }
   }
 
   static async updateUser(req, res, next) {
-    const id = req.params["id"];
+    try {
+      const id = req.params["id"];
     const user = await User.findOne({
       where: { id }
     });
@@ -144,7 +158,6 @@ export class UsersController {
       password = ""
     } = req.body;
 
-    try {
       const validationError = new ValidationError();
       const trimmedUserName = userName.trim();
       validationError.addEntry(...await UsersController.validateUserName(trimmedUserName));
@@ -162,25 +175,32 @@ export class UsersController {
       res.status(201).send(user);
     }
     catch(error) {
-      next(error);  
+      next(error);
+      return;
     }
   }
 
   static async deleteUser(req, res, next) {
-    const id = req.params["id"];
-    const user = await User.findOne({ where : { id }});
-
-    if(!user) {
-      const error = new ValidationError([
-        new ValidationErrorEntry("There is no user associated with this id!", "UserToDeleteNotFound")
-      ]);
+    try {
+      const id = req.params["id"];
+      const user = await User.findOne({ where : { id }});
+  
+      if(!user) {
+        const error = new ValidationError([
+          new ValidationErrorEntry("There is no user associated with this id!", "UserToDeleteNotFound")
+        ]);
+        next(error);
+        return;
+      }
+  
+      await user.destroy();
+      res.send(user);
+  
+      //TODO Cascade allocations
+    }
+    catch(error) {
       next(error);
       return;
     }
-
-    await user.destroy();
-    res.send(user);
-
-    //TODO Cascade allocations
   }
 }
