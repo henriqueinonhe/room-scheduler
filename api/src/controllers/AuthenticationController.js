@@ -55,7 +55,7 @@ export class AuthenticationController {
     try {
       const sessionId = req.cookies["sessionId"];
       if(sessionId === undefined) {
-        throw new AuthenticationError("No sessionId received!", "NoSession");
+        throw new AuthenticationError("No sessionId received!", "AnymousUser");
       }
 
       await Session.destroy({
@@ -74,28 +74,6 @@ export class AuthenticationController {
   }
 
   static async checkSession(req, res, next) {
-    try {
-      const sessionId = req.cookies["sessionId"];
-      if(sessionId === undefined) {
-        throw new AuthenticationError("No sessionId received!", "NoSession");
-      }
-
-      const session = await Session.findOne({
-        where: {
-          sessionId
-        },
-        include: User
-      });
-  
-      if(!session) {
-        throw new AuthenticationError("This session is either invalid or has already expired!", "InvalidOrExpiredSession");
-      }
-
-      res.send(session.User);
-    }
-    catch(error) {
-      next(error);
-      return;
-    }
+    res.send(req.authenticatedUser);
   }
 }
