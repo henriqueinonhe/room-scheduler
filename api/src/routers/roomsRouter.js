@@ -1,8 +1,11 @@
 import express from "express";
 import { RoomsController } from "../controllers/RoomsController.js";
 import { ScheduleController } from "../controllers/ScheduleController.js";
+import { authentication } from "../middlewares/authentication.js";
 
 export const roomsRouter = express.Router();
+
+roomsRouter.use(authentication);
 
 roomsRouter.route("/")
   .get(RoomsController.fetchRooms)
