@@ -1,12 +1,13 @@
-import { Session } from "../models/Session";
-import { User } from "../models/User";
+export function fetchAuthenticatedUser(req) {
+  const sessionId = req.cookies["sessionId"];
+  if(!sessionId) {
+    return null; //Means anonymous user (not authenticated)
+  }
 
-export async function fetchUserFromSession(sessionId) {
   const session = await Session.findOne({
-    where: {
-      id: sessionId
-    },
+    where: { sessionId },
     include: User
   });
-  return session.getUser();
+
+  return session.User;
 }
