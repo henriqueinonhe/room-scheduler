@@ -44,7 +44,7 @@ export class AuthenticationController {
       maxAge: 3600 * 1000,
       sameSite: "Strict"
     });
-    res.send("Login successful!");
+    res.send("Login successful");
   }
 
   static async logout(req, res, next) {
