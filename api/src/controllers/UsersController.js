@@ -1,8 +1,7 @@
 import { User } from "../models/User.js";
 import { ValidationError, ValidationErrorEntry } from "../exceptions/ValidationError.js";
-import crypto from "crypto";
 import Sequelize from "sequelize";
-import { renameSync } from "fs";
+import { hashPassword } from "../helpers/cryptoHelper.js";
 
 const { Op } = Sequelize;
 
@@ -59,14 +58,6 @@ export class UsersController {
     return entries;
   }
 
-  static async hashPassword(password) {
-    const hash = crypto.createHash("sha256");
-    hash.update(password);
-
-    const hashedPassword = hash.digest("hex");
-    return hashedPassword;
-  }
-
   static async fetchUsers(req, res, next) {
     const {
       userName = "",
@@ -121,7 +112,7 @@ export class UsersController {
         throw validationError;
       }
   
-      const passwordHash = await UsersController.hashPassword(password);
+      const passwordHash = await hashPassword(password);
       const user = await User.create({
         userName: trimmedUserName,
         passwordHash,

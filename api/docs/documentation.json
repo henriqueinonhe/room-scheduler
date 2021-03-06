@@ -498,11 +498,11 @@
         }
       }
     },
-    "/login": {
+    "/authentication/login": {
       "summary": "Login",
       "post": {
         "tags": [
-          "Login"
+          "Authentication"
         ],
         "requestBody": {
           "content": {
@@ -529,13 +529,13 @@
               "Set-Cookie": {
                 "description": "Setting session id as cookie",
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/UserSchema"
                 }
               }
             }
           },
           "401": {
-            "description": "Unauthorized",
+            "description": "Authentication failure",
             "content": {
               "application/json": {
                 "schema": {
@@ -547,11 +547,11 @@
         }
       }
     },
-    "/logout": {
+    "/authentication/logout": {
       "summary": "Logout",
       "get": {
         "tags": [
-          "Login"
+          "Authentication"
         ],
         "responses": {
           "200": {
@@ -560,7 +560,47 @@
               "Set-Cookie": {
                 "description": "Unsetting session id cookie",
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/authentication/session": {
+      "summary": "Login using session",
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "parameters": [
+          {
+            "in": "cookie",
+            "name": "sessionId",
+            "description": "Session ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Session not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type" : "string"
                 }
               }
             }
