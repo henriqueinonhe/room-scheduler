@@ -53,10 +53,29 @@ export class AuthenticationController {
   }
 
   static async checkSession(req, res, next) {
-    const sessionId = req.cookies["sessionId"];
+    try {
+      const sessionId = req.cookies["sessionId"];
+  
+      if(sessionId === undefined) {
+        throw new AuthenticationError("No sessionId received!");
+      }
 
-    if(sessionId === undefined) {
-      
+      const session = await Session.findOne({
+        where: {
+          id: sessionId
+        },
+        include: User
+      });
+  
+      if(!session) {
+        throw new AuthenticationError("This session is either invalid or has already expired!");
+      }
+
+      res.send(session.getUser());
+    }
+    catch(error) {
+      next(error);
+      return;
     }
   }
 }

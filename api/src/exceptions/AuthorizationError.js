@@ -1,6 +1,7 @@
-export class AuthorizationError {
-  constructor(message) {
-    this.message = message;
-    this.type = "AuthorizationError";
+import { BaseError } from "./BaseError.js";
+
+export class AuthorizationError extends BaseError {
+  constructor(message, code) {
+    super(message, "AuthorizationError", code)
   }
 }
