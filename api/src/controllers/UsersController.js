@@ -6,6 +6,9 @@ import { hashPassword } from "../helpers/cryptoHelper.js";
 const { Op } = Sequelize;
 
 export class UsersController {
+  static hidePasswordUserAttributeSelection = {
+    exclude: ["passwordHash"]
+  };
   
   static async validateUserName(userName) {
     const entries = [];
@@ -32,7 +35,8 @@ export class UsersController {
     const usersWithThisUserName = await User.findAll({
       where: {
         userName
-      }
+      },
+      attributes: UsersController.hidePasswordUserAttributeSelection
     });
     if(usersWithThisUserName.length !== 0) {
       entries.push(new ValidationErrorEntry("This user name is already in use!", "UserNameAlreadyExists"));
@@ -81,7 +85,8 @@ export class UsersController {
               createdAfter
             ]
           }
-        }
+        },
+        attributes: UsersController.hidePasswordUserAttributeSelection
       });
   
       res.send(fetchedUsers);
@@ -99,7 +104,8 @@ export class UsersController {
       res.send(await User.findOne({
         where: {
           id
-        }
+        },
+        attributes: UsersController.hidePasswordUserAttributeSelection
       }));
     }
     catch(error) {
@@ -130,8 +136,13 @@ export class UsersController {
           passwordHash,
           role: "common"
         });
+        
+        const {
+          passwordHash : dummy,
+          ...userWithoutPassword
+        } = user.get();
   
-        res.status(201).send(user);
+        res.status(201).send(userWithoutPassword);
     }
     catch(error) {
       next(error);
@@ -140,39 +151,59 @@ export class UsersController {
   }
 
   static async updateUser(req, res, next) {
+    //NOTE Maybe this logic could be better
     try {
       const id = req.params["id"];
-    const user = await User.findOne({
-      where: { id }
-    });
+      const user = await User.findOne({
+        where: { id }
+      });
 
-    if(!user) {
-      next(new ValidationError([
-        new ValidationErrorEntry("There is no user associated with this id!", "UserToUpdateNotFound")
-      ]));
-      return;
-    }
+      if(!user) {
+        next(new ValidationError([
+          new ValidationErrorEntry("There is no user associated with this id!", "UserToUpdateNotFound")
+        ]));
+        return;
+      }
 
-    const {
-      userName = "",
-      password = ""
-    } = req.body;
+      const {
+        userName: receivedUserName,
+        password: receivedPassword
+      } = req.body;
 
       const validationError = new ValidationError();
-      const trimmedUserName = userName.trim();
-      validationError.addEntry(...await UsersController.validateUserName(trimmedUserName));
-      validationError.addEntry(...await UsersController.validatePassword(password));
+
+      let userName;
+      if(receivedUserName) {
+        userName = receivedUserName.trim();
+        validationError.addEntry(...await UsersController.validateUserName(userName));
+      }
+      else {
+        userName = user.userName;
+      }
+
+      let passwordHash;
+      if(receivedPassword) {
+        validationError.addEntry(...await UsersController.validatePassword(receivedPassword));
+        passwordHash = await hashPassword(receivedPassword);
+      }
+      else {
+        passwordHash = user.passwordHash;
+      }
   
       if(validationError.hasErrors()) {
         throw validationError;
       }
   
-      const passwordHash = await UsersController.hashPassword(password);
       user.userName = userName;
       user.passwordHash = passwordHash;
       await user.save();
 
-      res.status(201).send(user);
+      const {
+        passwordHash : dummy,
+        ...userWithoutPassword
+      } = user.get();
+
+      res.status(201).send(userWithoutPassword);
     }
     catch(error) {
       next(error);
@@ -194,7 +225,12 @@ export class UsersController {
       }
   
       await user.destroy();
-      res.send(user);
+
+      const {
+        passwordHash : dummy,
+        ...userWithoutPassword
+      } = user.get();
+      res.send(userWithoutPassword);
   
       //TODO Cascade allocations
     }
