@@ -4,6 +4,7 @@ import Sequelize from "sequelize";
 import { hashPassword } from "../helpers/cryptoHelper.js";
 import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper.js";
 import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError.js";
+import { controllerMethodWrapper } from "../helpers/controllerHelper.js";
 
 const { Op } = Sequelize;
 
@@ -64,104 +65,84 @@ export class UsersController {
     return entries;
   }
 
-  static async fetchUsers(req, res, next) {
-    try {
-      const {
-        userName = "",
-        role = "",
-        createdBefore = defaultVeryEarlyDate,
-        createdAfter = defaultVeryLateDate
-      } = req.query;
-  
-      const fetchedUsers = await User.findAll({
-        where: {
-          userName: {
-            [Op.like]: `%${userName}%`
-          },
-          role: {
-            [Op.like]: `%${role}%`
-          },
-          createdAt: {
-            [Op.between]: [
-              createdBefore,
-              createdAfter
-            ]
-          }
+  static fetchUsers = controllerMethodWrapper(async (req, res, next) => {
+    const {
+      userName = "",
+      role = "",
+      createdBefore = defaultVeryEarlyDate,
+      createdAfter = defaultVeryLateDate
+    } = req.query;
+
+    const fetchedUsers = await User.findAll({
+      where: {
+        userName: {
+          [Op.like]: `%${userName}%`
         },
-        attributes: UsersController.hidePasswordUserAttributeSelection
-      });
-  
-      res.send(fetchedUsers);
-    }
-    catch(error) {
-      next(error);
-      return;
-    }
-  }
-
-  static async fetchSingleUser(req, res, next) {
-    try {
-      const id = req.params["id"];
-
-      const user = await User.findOne({
-        where: {
-          id
+        role: {
+          [Op.like]: `%${role}%`
         },
-        attributes: UsersController.hidePasswordUserAttributeSelection
-      });
+        createdAt: {
+          [Op.between]: [
+            createdBefore,
+            createdAfter
+          ]
+        }
+      },
+      attributes: UsersController.hidePasswordUserAttributeSelection
+    });
 
-      if(!user) {
-        throw new ResourceNotFoundError("There is no user associated with this id!", "UserNotFound");
+    res.send(fetchedUsers);
+  });
+
+  static fetchSingleUser = controllerMethodWrapper(async (req, res, next) => {
+    const id = req.params["id"];
+
+    const user = await User.findOne({
+      where: {
+        id
+      },
+      attributes: UsersController.hidePasswordUserAttributeSelection
+    });
+
+    if(!user) {
+      throw new ResourceNotFoundError("There is no user associated with this id!", "UserNotFound");
+    }
+
+    res.send(user);
+  });
+
+  static createUser = controllerMethodWrapper(async (req, res, next) => {
+    const {
+      userName = "",
+      password = ""
+    } = req.body;
+
+      const validationError = new ValidationError();
+      const trimmedUserName = userName.trim();
+      validationError.addEntry(...await UsersController.validateUserName(trimmedUserName));
+      validationError.addEntry(...await UsersController.validatePassword(password));
+  
+      if(validationError.hasErrors()) {
+        throw validationError;
       }
   
-      res.send(user);
-    }
-    catch(error) {
-      next(error);
-      return;
-    }
-  }
-
-  static async createUser(req, res, next) {
-    try {
+      const passwordHash = await hashPassword(password);
+      const user = await User.create({
+        userName: trimmedUserName,
+        passwordHash,
+        role: "common"
+      });
+      
       const {
-        userName = "",
-        password = ""
-      } = req.body;
-  
-        const validationError = new ValidationError();
-        const trimmedUserName = userName.trim();
-        validationError.addEntry(...await UsersController.validateUserName(trimmedUserName));
-        validationError.addEntry(...await UsersController.validatePassword(password));
-    
-        if(validationError.hasErrors()) {
-          throw validationError;
-        }
-    
-        const passwordHash = await hashPassword(password);
-        const user = await User.create({
-          userName: trimmedUserName,
-          passwordHash,
-          role: "common"
-        });
-        
-        const {
-          passwordHash : dummy,
-          ...userWithoutPassword
-        } = user.get();
-  
-        res.status(201).send(userWithoutPassword);
-    }
-    catch(error) {
-      next(error);
-      return;
-    }
-  }
+        passwordHash : dummy,
+        ...userWithoutPassword
+      } = user.get();
 
-  static async updateUser(req, res, next) {
-    //NOTE Maybe this logic could be better
-    try {
-      const id = req.params["id"];
+      res.status(201).send(userWithoutPassword);
+  });
+
+  static updateUser = controllerMethodWrapper(async (req, res, next) => {
+    const id = req.params["id"];
       const user = await User.findOne({
         where: { id }
       });
@@ -212,38 +193,26 @@ export class UsersController {
       } = user.get();
 
       res.status(201).send(userWithoutPassword);
-    }
-    catch(error) {
+  });
+
+  static deleteUser = controllerMethodWrapper(async (req, res, next) => {
+    const id = req.params["id"];
+    const user = await User.findOne({ where : { id }});
+
+    if(!user) {
+      const error = new ValidationError([
+        new ValidationErrorEntry("There is no user associated with this id!", "UserToDeleteNotFound")
+      ]);
       next(error);
       return;
     }
-  }
 
-  static async deleteUser(req, res, next) {
-    try {
-      const id = req.params["id"];
-      const user = await User.findOne({ where : { id }});
-  
-      if(!user) {
-        const error = new ValidationError([
-          new ValidationErrorEntry("There is no user associated with this id!", "UserToDeleteNotFound")
-        ]);
-        next(error);
-        return;
-      }
-  
-      await user.destroy();
+    await user.destroy();
 
-      const {
-        passwordHash : dummy,
-        ...userWithoutPassword
-      } = user.get();
-      res.send(userWithoutPassword);
-  
-    }
-    catch(error) {
-      next(error);
-      return;
-    }
-  }
+    const {
+      passwordHash : dummy,
+      ...userWithoutPassword
+    } = user.get();
+    res.send(userWithoutPassword);
+  });
 }

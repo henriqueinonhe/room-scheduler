@@ -40,33 +40,27 @@ export class RoomsController {
     return errors;
   }
 
-  static async fetchRooms(req, res, next) {
-    try {
-      const {
-        name = "",
-        createdAfter = defaultVeryEarlyDate,
-        createdBefore = defaultVeryLateDate
-      } = req.query;
-  
-      res.send(await Room.findAll({
-        where: {
-          name: {
-            [Op.like]: `%${name}%`
-          },
-          createdAt: {
-            [Op.between]: [
-              createdAfter,
-              createdBefore
-            ]
-          }
+  static fetchRooms = controllerMethodWrapper(async (req, res, next) => {
+    const {
+      name = "",
+      createdAfter = defaultVeryEarlyDate,
+      createdBefore = defaultVeryLateDate
+    } = req.query;
+
+    res.send(await Room.findAll({
+      where: {
+        name: {
+          [Op.like]: `%${name}%`
+        },
+        createdAt: {
+          [Op.between]: [
+            createdAfter,
+            createdBefore
+          ]
         }
-      }));
-    }
-    catch(error) {
-      next(error);
-      return;
-    }
-  }
+      }
+    }));
+  });
 
   static fetchSingleRoom = controllerMethodWrapper(async (req, res, next) => {
     const {
@@ -109,27 +103,20 @@ export class RoomsController {
     }
   }
 
-  static async updateRoom(req, res, next) {
-    try {
-      const {
-        id
-      } = req.params;
+  static updateRoom = controllerMethodWrapper(async (req, res, next) => {
+    const {
+      id
+    } = req.params;
+
+    const {
+      name: receivedName
+    } = req.body;
 
 
-      const {
-        name: receivedName
-      } = req.body;
-
-
-      let name;
-      if(!receivedName) {
-      }
+    let name;
+    if(!receivedName) {
     }
-    catch(error) {
-      next(error);
-      return;
-    }
-  }
+  });
 
   static async deleteRoom(req, res, next) {
     //TODO
