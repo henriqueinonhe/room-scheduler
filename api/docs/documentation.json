@@ -165,6 +165,9 @@
           },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
           }
         }
       },
@@ -305,6 +308,9 @@
           },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
           }
         }
       }
@@ -423,6 +429,9 @@
           },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundErrorResponse"
           }
         }
       },
@@ -555,6 +564,9 @@
           },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
+          },
+          "404": {
+            "$ref":  "#/components/responses/NotFoundErrorResponse"
           }
         }
       }
@@ -693,6 +705,9 @@
           },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
+          },
+          "404": {
+            "$ref":  "#/components/responses/NotFoundErrorResponse"
           }
         }
       },
@@ -915,6 +930,16 @@
       },
       "AuthenticationErrorResponse": {
         "description": "Authentication failure",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref":  "#/components/schemas/ErrorResponseContentSchema"
+            }
+          }
+        }
+      },
+      "NotFoundErrorResponse": {
+        "description": "Not found",
         "content": {
           "application/json": {
             "schema": {

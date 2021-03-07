@@ -9,5 +9,7 @@ export function authorization(roles) {
       next(new AuthorizationError("You do not have authorization for this route!", "Unauthorized"));
       return;
     }
+
+    next();
   };
 }

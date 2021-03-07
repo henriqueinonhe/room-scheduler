@@ -1,5 +1,7 @@
-import { DataTypes } from "sequelize";
+import Sequelize from "sequelize";
 import { db } from "../db.js";
+
+const { DataTypes } = Sequelize;
 
 export const Room = db.define("Room", {
   id: {

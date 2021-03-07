@@ -4,7 +4,7 @@ import { AuthenticationError } from "../exceptions/AuthenticationError.js";
 import { Session } from "../models/Session.js";
 
 export class AuthenticationController {
-  static async login(req, res, next) {
+  static login(req, res, next) {
     try {
       const {
         userName = "",

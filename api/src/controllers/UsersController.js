@@ -2,6 +2,8 @@ import { User } from "../models/User.js";
 import { ValidationError, ValidationErrorEntry } from "../exceptions/ValidationError.js";
 import Sequelize from "sequelize";
 import { hashPassword } from "../helpers/cryptoHelper.js";
+import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper.js";
+import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError.js";
 
 const { Op } = Sequelize;
 
@@ -67,8 +69,8 @@ export class UsersController {
       const {
         userName = "",
         role = "",
-        createdBefore = "1900-01-01",
-        createdAfter = "3000-01-01"
+        createdBefore = defaultVeryEarlyDate,
+        createdAfter = defaultVeryLateDate
       } = req.query;
   
       const fetchedUsers = await User.findAll({
@@ -100,13 +102,19 @@ export class UsersController {
   static async fetchSingleUser(req, res, next) {
     try {
       const id = req.params["id"];
-  
-      res.send(await User.findOne({
+
+      const user = await User.findOne({
         where: {
           id
         },
         attributes: UsersController.hidePasswordUserAttributeSelection
-      }));
+      });
+
+      if(!user) {
+        throw new ResourceNotFoundError("There is no user associated with this id!", "UserNotFound");
+      }
+  
+      res.send(user);
     }
     catch(error) {
       next(error);
