@@ -1,217 +1,35 @@
-import { User } from "../models/User.js";
-import { ValidationError, ValidationErrorEntry } from "../exceptions/ValidationError.js";
-import Sequelize from "sequelize";
-import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper.js";
-import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError.js";
 import { controllerMethodWrapper } from "../helpers/controllerHelper.js";
-
-const { Op } = Sequelize;
+import { UsersService } from "../services/UsersService.js";
 
 export class UsersController {
-  static hidePasswordUserAttributeSelection = {
-    exclude: ["passwordHash"]
-  };
-  
-  static async validateUserName(userName) {
-    const entries = [];
-    if(userName === undefined) {
-      entries.push(new ValidationErrorEntry("User name is required!", "UserNameRequired"));
-    }
-
-    if(userName.length < 4) {
-      entries.push(new ValidationErrorEntry("User name must be at least 4 characters long!", "UserNameTooShort"));
-    }
-
-    if(userName.length > 30) {
-      entries.push(new ValidationErrorEntry("User name must not be greater than 30 characters long!", "UserNameTooLong"));
-    }
-
-    if(!/^([A-z]|[0-9])+$/.test(userName)) {
-      entries.push(new ValidationErrorEntry("User name must contain only letters and numbers (whitespace is not allowed).", "UserNameWithInvalidCharacters"));
-    }
-
-    if(entries.length !== 0) {
-      return entries;
-    }
-
-    const usersWithThisUserName = await User.findAll({
-      where: {
-        userName
-      },
-      attributes: UsersController.hidePasswordUserAttributeSelection
-    });
-    if(usersWithThisUserName.length !== 0) {
-      entries.push(new ValidationErrorEntry("This user name is already in use!", "UserNameAlreadyExists"));
-    }
-    
-    return entries;
-  }
-
-  static async validatePassword(password) {
-    const entries = [];
-    if(password === undefined) {
-      entries.push(new ValidationErrorEntry("Password is required!", "PasswordRequired"));
-    }
-
-    if(password.length < 8) {
-      entries.push(new ValidationErrorEntry("Password must be at least 8 characters long!", "PasswordTooShort"));
-    }
-
-    if(password.length > 64) {
-      entries.push(new ValidationErrorEntry("Password must not be greater than 64 characters long!", "PasswordTooLong"));
-    }
-
-    return entries;
-  }
-
   static fetchUsers = controllerMethodWrapper(async (req, res, next) => {
-    const {
-      userName = "",
-      role = "",
-      createdBefore = defaultVeryEarlyDate,
-      createdAfter = defaultVeryLateDate
-    } = req.query;
-
-    const fetchedUsers = await User.findAll({
-      where: {
-        userName: {
-          [Op.like]: `%${userName}%`
-        },
-        role: {
-          [Op.like]: `%${role}%`
-        },
-        createdAt: {
-          [Op.between]: [
-            createdBefore,
-            createdAfter
-          ]
-        }
-      },
-      attributes: UsersController.hidePasswordUserAttributeSelection
-    });
-
+    const fetchedUsers = await UsersService.fetchUsers(req.query)
     res.send(fetchedUsers);
   });
 
   static fetchSingleUser = controllerMethodWrapper(async (req, res, next) => {
     const id = req.params["id"];
-
-    const user = await User.findOne({
-      where: {
-        id
-      },
-      attributes: UsersController.hidePasswordUserAttributeSelection
-    });
-
-    if(!user) {
-      throw new ResourceNotFoundError("There is no user associated with this id!", "UserNotFound");
-    }
-
-    res.send(user);
+    const fetchedUser = await UsersService.fetchSingleUser(id);
+    res.send(fetchedUser);
   });
 
   static createUser = controllerMethodWrapper(async (req, res, next) => {
-    const {
-      userName = "",
-      password = ""
-    } = req.body;
-
-      const validationError = new ValidationError();
-      const trimmedUserName = userName.trim();
-      validationError.addEntry(...await UsersController.validateUserName(trimmedUserName));
-      validationError.addEntry(...await UsersController.validatePassword(password));
-  
-      if(validationError.hasErrors()) {
-        throw validationError;
-      }
-  
-      const passwordHash = await hashPassword(password);
-      const user = await User.create({
-        userName: trimmedUserName,
-        passwordHash,
-        role: "common"
-      });
-      
-      const {
-        passwordHash : dummy,
-        ...userWithoutPassword
-      } = user.get();
-
-      res.status(201).send(userWithoutPassword);
+    const createUserData = req.body;
+    const createdUser = await UsersService.createUser(createUserData);
+    res.status(201).send(createdUser);
   });
 
   static updateUser = controllerMethodWrapper(async (req, res, next) => {
     const id = req.params["id"];
-      const user = await User.findOne({
-        where: { id }
-      });
+    const updateUserData = req.body;
+    const updatedUser = await UsersService.updateUser(id, updateUserData);  
 
-      if(!user) {
-        next(new ValidationError([
-          new ValidationErrorEntry("There is no user associated with this id!", "UserToUpdateNotFound")
-        ]));
-        return;
-      }
-
-      const {
-        userName: receivedUserName,
-        password: receivedPassword
-      } = req.body;
-
-      const validationError = new ValidationError();
-
-      let userName;
-      if(receivedUserName) {
-        userName = receivedUserName.trim();
-        validationError.addEntry(...await UsersController.validateUserName(userName));
-      }
-      else {
-        userName = user.userName;
-      }
-
-      let passwordHash;
-      if(receivedPassword) {
-        validationError.addEntry(...await UsersController.validatePassword(receivedPassword));
-        passwordHash = await hashPassword(receivedPassword);
-      }
-      else {
-        passwordHash = user.passwordHash;
-      }
-  
-      if(validationError.hasErrors()) {
-        throw validationError;
-      }
-  
-      user.userName = userName;
-      user.passwordHash = passwordHash;
-      await user.save();
-
-      const {
-        passwordHash : dummy,
-        ...userWithoutPassword
-      } = user.get();
-
-      res.status(201).send(userWithoutPassword);
+    res.status(201).send(updatedUser);
   });
 
   static deleteUser = controllerMethodWrapper(async (req, res, next) => {
     const id = req.params["id"];
-    const user = await User.findOne({ where : { id }});
-
-    if(!user) {
-      const error = new ValidationError([
-        new ValidationErrorEntry("There is no user associated with this id!", "UserToDeleteNotFound")
-      ]);
-      next(error);
-      return;
-    }
-
-    await user.destroy();
-
-    const {
-      passwordHash : dummy,
-      ...userWithoutPassword
-    } = user.get();
-    res.send(userWithoutPassword);
+    const deletedUser = await UsersService.deleteUser(id);
+    res.send(deletedUser);
   });
 }
