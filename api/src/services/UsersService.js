@@ -68,8 +68,8 @@ export class UsersService {
     const {
       userName = "",
       role = "",
-      createdBefore = defaultVeryEarlyDate,
-      createdAfter = defaultVeryLateDate
+      createdAfter = defaultVeryEarlyDate,
+      createdBefore = defaultVeryLateDate
     } = query;
 
     const fetchedUsers = await User.findAll({
@@ -82,8 +82,8 @@ export class UsersService {
         },
         createdAt: {
           [Op.between]: [
-            createdBefore,
-            createdAfter
+            createdAfter,
+            createdBefore
           ]
         }
       },

@@ -12,5 +12,5 @@ allocationsRouter.route("/")
   .post(authorization(["admin", "common"]), AllocationsController.createAllocation);
 
 allocationsRouter.route("/:id")
-  .get(authorization["admin", "common"], AllocationsController.fetchSingleAllocation)
-  .delete(authorization["admin", "common"], AllocationsController.deleteAllocation);
+  .get(authorization(["admin", "common"]), AllocationsController.fetchSingleAllocation)
+  .delete(authorization(["admin", "common"]), AllocationsController.deleteAllocation);

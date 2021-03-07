@@ -1,5 +1,5 @@
-import { controllerMethodWrapper } from "../helpers/controllerHelper";
-import { AllocationsService } from "../services/AllocationsService";
+import { controllerMethodWrapper } from "../helpers/controllerHelper.js";
+import { AllocationsService } from "../services/AllocationsService.js";
 
 export class AllocationsController {
   static fetchAllocations = controllerMethodWrapper(async (req, res, next) => {

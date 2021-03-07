@@ -7,6 +7,7 @@ import { usersRouter } from "./routers/usersRouter.js";
 import { roomsRouter } from "./routers/roomsRouter.js";
 import { handleError } from "./middlewares/handleError.js";
 import cookieParser from "cookie-parser";
+import { allocationsRouter } from "./routers/allocationsRouter.js";
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ async function main() {
   app.use("/authentication", authenticationRouter);
   app.use("/users", usersRouter);
   app.use("/rooms", roomsRouter);
+  app.use("/allocations", allocationsRouter);
   app.use(handleError);
   
   await ensureDbConnection();

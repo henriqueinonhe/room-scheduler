@@ -1,7 +1,9 @@
-import { DataTypes } from "sequelize";
 import { db } from "../db.js";
 import { User } from "./User.js";
 import { Room } from "./Room.js";
+import Sequelize from "sequelize";
+
+const { DataTypes } = Sequelize;
 
 export const Allocation = db.define("Allocation", {
   id: {
@@ -19,10 +21,6 @@ export const Allocation = db.define("Allocation", {
     allowNull: false
   },
   startDate: {
-    type: DataTypes.DATE,
-    allowNull: false
-  },
-  endDate: {
     type: DataTypes.DATE,
     allowNull: false
   }

@@ -276,10 +276,10 @@
             "required": true
           },
           {
-            "$ref": "#/components/parameters/CreatedAfterParameter"
+            "$ref": "#/components/parameters/StartDateAfterParameter"
           },
           {
-            "$ref": "#/components/parameters/CreatedBeforeParameter"
+            "$ref": "#/components/parameters/StartDateBeforeParameter"
           },
           {
             "name": "roomName",
@@ -540,10 +540,10 @@
             "required": true
           },
           {
-            "$ref": "#/components/parameters/CreatedAfterParameter"
+            "$ref": "#/components/parameters/StartDateAfterParameter"
           },
           {
-            "$ref": "#/components/parameters/CreatedBeforeParameter"
+            "$ref": "#/components/parameters/StartDateBeforeParameter"
           }
         ],
         "responses": {
@@ -597,10 +597,10 @@
             }
           },
           {
-            "$ref":  "#/components/parameters/CreatedAfterParameter"
+            "$ref":  "#/components/parameters/StartDateAfterParameter"
           },
           {
-            "$ref": "#/components/parameters/CreatedBeforeParameter"
+            "$ref": "#/components/parameters/StartDateBeforeParameter"
           }
         ],
         "responses": {
@@ -967,7 +967,7 @@
       "CreatedBeforeParameter": {
         "in": "query",
         "name": "createdBefore",
-        "description": "Created at lower bound",
+        "description": "Created at upper bound",
         "schema": {
           "type": "string"
         }
@@ -975,7 +975,7 @@
       "CreatedAfterParameter": {
         "in": "query",
         "name": "createdAfter",
-        "description": "Created at upper bound",
+        "description": "Created at lower bound",
         "schema": {
           "type": "string"
         }
@@ -986,6 +986,22 @@
         "description": "Date",
         "schema": {
           "type": "string"
+        }
+      },
+      "StartDateAfterParameter": {
+        "in": "query",
+        "name": "startDateAfter",
+        "description": "Start date lower bound",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "StartDateBeforeParameter": {
+        "in": "query",
+        "name": "startDateBefore",
+        "description": "Start date upper bound",
+        "schema": {
+          "type" : "string"
         }
       }
     },
