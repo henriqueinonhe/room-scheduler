@@ -108,14 +108,32 @@ export class RoomsController {
       id
     } = req.params;
 
+    const roomToBeUpdated = await Room.findOne({
+      where: { id }
+    });
+
+    if(!roomToBeUpdated) {
+      throw new ResourceNotFoundError("There is no room associated with this id!", "RoomNotFound");
+    }
+
     const {
       name: receivedName
     } = req.body;
 
+    const validationError = new ValidationError([]);
 
-    let name;
-    if(!receivedName) {
+    const name = receivedName || roomToBeUpdated.name;
+    validationError.addEntry(...await RoomsController.validateRoomName(receivedName));
+
+    if(validationError.hasErrors()) {
+      throw validationError;
     }
+
+    roomToBeUpdated.name = name;
+
+    await roomToBeUpdated.save();
+    
+    res.send(roomToBeUpdated);
   });
 
   static async deleteRoom(req, res, next) {
