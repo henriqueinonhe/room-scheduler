@@ -1,6 +1,7 @@
 import { User } from "../models/User.js";
 import { Session } from "../models/Session.js";
 import { AuthenticationError } from "../exceptions/AuthenticationError.js";
+import { AuthenticationService } from "../services/AuthenticationService.js";
 
 export async function authentication(req, res, next) {
   try {
@@ -9,23 +10,13 @@ export async function authentication(req, res, next) {
       throw new AuthenticationError("No sessionId received!", "AnonymousUser");
     }
 
-    const session = await Session.findOne({
-      where: {
-        sessionId
-      },
-      include: User
-    });
-
-    if(!session) {
-      throw new AuthenticationError("This session is either invalid or has already expired!", "InvalidOrExpiredSession");
-    }
-
+    const authenticatedUser = await AuthenticationService.authenticeUserWithSession(sessionId);
     const {
       id,
       userName,
       role,
       createdAt
-    } = session.User;
+    } = authenticatedUser;
 
     req.authenticatedUser = {
       id,

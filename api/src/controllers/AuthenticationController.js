@@ -1,7 +1,5 @@
-import { hashPassword, generateSessionId } from "../helpers/cryptoHelper.js";
-import { User } from "../models/User.js";
+import { AuthenticationService } from "../services/AuthenticationService.js";
 import { AuthenticationError } from "../exceptions/AuthenticationError.js";
-import { Session } from "../models/Session.js";
 import { controllerMethodWrapper } from "../helpers/controllerHelper.js";
 
 export class AuthenticationController {
@@ -11,55 +9,28 @@ export class AuthenticationController {
       password = ""
     } = req.body;
 
-    const passwordHash = await hashPassword(password);
-
-    const user = await User.findOne({
-      where: {
-        userName,
-        passwordHash
-      }
-    });
-
-    if(!user) {
-      throw new AuthenticationError("User name and/or password don't match!", "LoginFail");
-    }
-
-    //Clear previous sessions
-    const userId = user.id;
-    await Session.destroy({
-      where: {
-        fkUser: userId
-      }
-    });
-
-    //Create new session
-    const sessionId = await generateSessionId();
-    await Session.create({
-      sessionId,
-      fkUser: userId
-    });
+    const user = await AuthenticationService.authenticateUserWithCredentials(userName, password);
+    await AuthenticationService.clearUserSessions(user);
+    const sessionId = await AuthenticationService.createSession(user);
 
     res.cookie("sessionId", sessionId, {
       maxAge: 3600 * 1000,
       sameSite: "Strict"
     });
-    res.send("Login successful");
+
+    res.send(user);
   });
 
   static logout = controllerMethodWrapper(async (req, res, next) => {
     const sessionId = req.cookies["sessionId"];
-      if(sessionId === undefined) {
-        throw new AuthenticationError("No sessionId received!", "AnymousUser");
-      }
+    if(sessionId === undefined) {
+      throw new AuthenticationError("No sessionId received!", "AnonymousUser");
+    }
 
-      await Session.destroy({
-        where: {
-          sessionId
-        }
-      });
+    await AuthenticationService.clearSessionById(sessionId);
 
-      res.cookie("sessionId", "", { maxAge: 0 });
-      res.send("Logout successful!");
+    res.cookie("sessionId", "", { maxAge: 0 }); //Unset cookie
+    res.send("Logout successful!");
   });
 
   static async checkSession(req, res, next) {

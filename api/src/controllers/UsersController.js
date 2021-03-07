@@ -1,7 +1,6 @@
 import { User } from "../models/User.js";
 import { ValidationError, ValidationErrorEntry } from "../exceptions/ValidationError.js";
 import Sequelize from "sequelize";
-import { hashPassword } from "../helpers/cryptoHelper.js";
 import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper.js";
 import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError.js";
 import { controllerMethodWrapper } from "../helpers/controllerHelper.js";
