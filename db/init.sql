@@ -31,7 +31,6 @@ CREATE TABLE `Allocations` (
   `fkUser` int unsigned NOT NULL,
   `fkRoom` int unsigned NOT NULL,
   `startDate` datetime NOT NULL,
-  `endDate` datetime NOT NULL,
   `createdAt` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `Allocations_FK` (`fkUser`),
