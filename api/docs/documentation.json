@@ -9,6 +9,11 @@
       "url": "http://localhost:31414"
     }
   ],
+  "security": [
+    {
+      "SessionAuthentication": []
+    }
+  ],
   "paths": {
     "/check": {
       "summary": "API health check",
@@ -17,6 +22,7 @@
         "tags": [
           "Test"
         ],
+        "security": [{}],
         "responses": {
           "200": {
             "description": "Default response",
@@ -75,6 +81,9 @@
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
           }
@@ -115,6 +124,9 @@
               }
             }
           },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
             "$ref": "#/components/responses/InvalidDataErrorResponse"
           }
@@ -147,6 +159,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
           },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
@@ -196,6 +211,9 @@
               }
             }
           },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
           },
@@ -230,46 +248,63 @@
               }
             }
           },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
           }
         }
       }
     },
-    "/users/{id}/schedule": {
+    "/users/{id}/allocations": {
       "get": {
-        "tags": ["Schedule"],
-        "description": "Retrieves a user's schedule on a specific day.",
+        "tags": ["Allocations"],
+        "description": "Retrieves user allocations",
         "parameters": [
-          {
-            "$ref": "#/components/parameters/DateParameter"
-          },
           {
             "name": "id",
             "in": "path",
             "description": "User id",
-            "required": true,
             "schema": {
               "type": "number"
+            },
+            "required": true
+          },
+          {
+            "$ref": "#/components/parameters/CreatedAfterParameter"
+          },
+          {
+            "$ref": "#/components/parameters/CreatedBeforeParameter"
+          },
+          {
+            "name": "roomName",
+            "in": "query",
+            "description": "Room name",
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "User schedule fetched successfully",
+            "description": "Allocations fetched successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/UserScheduleEntrySchema"
+                    "$ref": "#/components/schemas/AllocationSchema"
                   }
                 }
               }
             }
           },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
-            "$ref":  "#/components/responses/AuthorizationErrorResponse"
+            "$ref": "#/components/responses/AuthorizationErrorResponse"
           }
         }
       }
@@ -306,6 +341,9 @@
               }
             }
           },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
           }
@@ -341,6 +379,9 @@
               }
             }
           },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
           },
@@ -361,7 +402,7 @@
             "name": "id",
             "description": "Room id",
             "schema": {
-              "type": "string"
+              "type": "number"
             },
             "required": true
           }
@@ -376,6 +417,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
           },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
@@ -392,7 +436,7 @@
             "name": "id",
             "description": "Room id",
             "schema": {
-              "type": "string"
+              "type": "number"
             },
             "required": true
           }
@@ -423,6 +467,9 @@
               }
             }
           },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
           },
@@ -441,7 +488,7 @@
             "name": "id",
             "description": "Room id",
             "schema": {
-              "type": "string"
+              "type": "number"
             },
             "required": true
           }
@@ -457,40 +504,216 @@
               }
             }
           },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
           "403": {
             "$ref": "#/components/responses/AuthorizationErrorResponse"
           }
         }
       }
     },
-    "/rooms/{id}/schedule": {
+    "/rooms/{id}/allocations": {
       "get": {
-        "tags": ["Schedule"],
-        "description": "Retrieves room schedule",
+        "tags": [
+          "Allocations"
+        ],
+        "description": "Fetch room allocations",
         "parameters": [
           {
-            "$ref":  "#/components/parameters/DateParameter"
-          },
-          {
-            "in": "path",
             "name": "id",
+            "in": "path",
             "description": "Room id",
             "schema": {
-              "type": "string"
+              "type": "number"
             },
             "required": true
+          },
+          {
+            "$ref": "#/components/parameters/CreatedAfterParameter"
+          },
+          {
+            "$ref": "#/components/parameters/CreatedBeforeParameter"
           }
         ],
         "responses": {
           "200": {
-            "description": "Scheduled fetched successfully",
+            "description": "Allocations fetched successfully",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref":  "#/components/schemas/RoomScheduleEntrySchema"
+                  "type": "array",
+                  "items": {
+                    "$ref":  "#/components/schemas/AllocationSchema"
+                  }
                 }
               }
             }
+          },
+          "401": {
+            "$ref":  "#/components/responses/AuthenticationErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationErrorResponse"
+          }
+        }
+      }
+    },
+    "/allocations": {
+      "summary": "Allocations",
+      "get": {
+        "tags": [
+          "Allocations"
+        ],
+        "description": "Fetches allocations",
+        "parameters": [
+          {
+            "name": "userName",
+            "in": "query",
+            "description": "User name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roomName",
+            "in": "query",
+            "description": "Room name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref":  "#/components/parameters/CreatedAfterParameter"
+          },
+          {
+            "$ref": "#/components/parameters/CreatedBeforeParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Allocations fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AllocationSchema"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthenticationErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Create new allocation",
+        "tags": [
+          "Allocations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "roomId": {
+                    "type": "number"
+                  },
+                  "userId": {
+                    "type": "number"
+                  },
+                  "startDate": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Allocation created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthenticationErrorResponse"
+          },
+          "403": {
+            "$ref":  "#/components/responses/AuthorizationErrorResponse"
+          },
+          "422": {
+            "$ref":  "#/components/responses/InvalidDataErrorResponse"
+          }
+        }
+      }
+    },
+    "/allocations/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "Allocation id",
+          "schema": {
+            "type": "number"
+          },
+          "required": true
+        }
+      ],
+      "get": {
+        "tags": [
+          "Allocations"
+        ],
+        "description": "Fetch allocation by id",
+        "responses": {
+          "200": {
+            "description": "Allocation fetched successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref":  "#/components/schemas/AllocationSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthenticationErrorResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/AuthorizationErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Allocations"
+        ],
+        "description": "Delete allocation",
+        "responses": {
+          "200": {
+            "description": "Allocation deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthenticationErrorResponse"
           },
           "403": {
             "$ref":  "#/components/responses/AuthorizationErrorResponse"
@@ -503,6 +726,9 @@
       "post": {
         "tags": [
           "Authentication"
+        ],
+        "security": [
+          {}
         ],
         "requestBody": {
           "content": {
@@ -648,25 +874,20 @@
           }
         }
       },
-      "UserScheduleEntrySchema": {
+      "AllocationSchema": {
         "type": "object",
         "properties": {
-          "startTime": {
-            "type": "string"
+          "id": {
+            "type": "number"
           },
-          "room": {
-            "$ref": "#/components/schemas/RoomSchema"
-          }
-        }
-      },
-      "RoomScheduleEntrySchema": {
-        "type": "object",
-        "properties": {
-          "startTime": {
+          "startDate": {
             "type": "string"
           },
           "user": {
-            "$ref":  "#/components/schemas/UserSchema"
+            "$ref": "#/components/schemas/UserSchema"
+          },
+          "room": {
+            "$ref": "#/components/schemas/RoomSchema"
           }
         }
       }
@@ -697,10 +918,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/ErrorResponseContentSchema"
-              }
+              "$ref":  "#/components/schemas/ErrorResponseContentSchema"
             }
           }
         }
@@ -710,7 +928,10 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/components/schemas/ErrorResponseContentSchema"
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ErrorResponseContentSchema"
+              }
             }
           }
         }
@@ -740,6 +961,13 @@
         "schema": {
           "type": "string"
         }
+      }
+    },
+    "securitySchemes": {
+      "SessionAuthentication": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "sessionId"
       }
     }
   }

@@ -3,7 +3,16 @@ import { AuthenticationError } from "../exceptions/AuthenticationError.js";
 import { AuthorizationError } from "../exceptions/AuthorizationError.js";
 
 export async function handleError(error, req, res, next) {
-  console.log(error);
+  console.log({
+    req: {
+      url: req.originalUrl,
+      parameters: req.params,
+      query: req.query,
+      body: req.body,
+      ip: req.ip
+    },
+    error
+  });
 
   if(error instanceof ValidationError) {
     res.status(422).send({ error });
