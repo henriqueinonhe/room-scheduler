@@ -1,6 +1,5 @@
 import express from "express";
 import { UsersController } from "../controllers/UsersController.js";
-import { ScheduleController } from "../controllers/ScheduleController.js";
 import { authentication } from "../middlewares/authentication.js";
 import { authorization } from "../middlewares/authorization.js";
 
@@ -17,4 +16,4 @@ usersRouter.route("/:id")
   .patch(authorization(["admin"]), UsersController.updateUser)
   .delete(authorization(["admin"]), UsersController.deleteUser);
 
-usersRouter.get("/:id/schedule", authorization(["admin", "common"]), ScheduleController.fetchUserSchedule);
+usersRouter.get("/:id/allocations", authorization(["admin", "common"]));

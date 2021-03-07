@@ -139,17 +139,7 @@ export class UsersService {
   }
 
   static async updateUser(id, updateUserData) {
-    const userToBeUpdated = await User.findOne({
-      where: { id }
-    });
-
-    if(!userToBeUpdated) {
-      next(new ValidationError([
-        new ValidationErrorEntry("There is no user associated with this id!", "UserNotFound")
-      ]));
-      return;
-    }
-
+    const userToBeUpdated = await UsersService.fetchSingleUser(id);
     const {
       userName: receivedUserName,
       password: receivedPassword
@@ -186,14 +176,7 @@ export class UsersService {
   }
 
   static async deleteUser(id) {
-    const user = await User.findOne({ where : { id }});
-
-    if(!user) {
-      const error = new ValidationError([
-        new ValidationErrorEntry("There is no user associated with this id!", "UserToDeleteNotFound")
-      ]);
-      throw error;
-    }
+    const user = await UsersService.fetchSingleUser(id);
 
     await user.destroy();
     const {
