@@ -164,9 +164,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                      "$ref": "#/components/schemas/UserSchema"
-                    }
-                  }
+                  "$ref": "#/components/schemas/UserSchema"
                 }
               }
             }
