@@ -73,9 +73,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/UserSchema"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserSchema"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetadataSchema"
+                    }
                   }
                 }
               }
@@ -156,7 +164,9 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UserSchema"
+                      "$ref": "#/components/schemas/UserSchema"
+                    }
+                  }
                 }
               }
             }
@@ -296,9 +306,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AllocationSchema"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AllocationSchema"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetadataSchema"
+                    }
                   }
                 }
               }
@@ -343,7 +361,18 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RoomSchema"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/RoomSchema"
+                      }
+                    },
+                    "meta": {
+                      "$ref":  "#/components/schemas/PaginationMetadataSchema"
+                    }
+                  }
                 }
               }
             }
@@ -552,9 +581,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref":  "#/components/schemas/AllocationSchema"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref":  "#/components/schemas/AllocationSchema"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetadataSchema"
+                    }
                   }
                 }
               }
@@ -609,9 +646,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AllocationSchema"
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/AllocationSchema"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/PaginationMetadataSchema"
+                    }
                   }
                 }
               }
@@ -904,6 +949,20 @@
           },
           "room": {
             "$ref": "#/components/schemas/RoomSchema"
+          }
+        }
+      },
+      "PaginationMetadataSchema": {
+        "type": "object",
+        "properties": {
+          "perPage": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "currentPage": {
+            "type": "number"
           }
         }
       }
