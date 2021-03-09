@@ -9,8 +9,8 @@ allocationsRouter.use(authentication);
 
 allocationsRouter.route("/")
   .get(authorization(["admin"]), AllocationsController.fetchAllocations)
-  .post(authorization(["admin", "common"]), AllocationsController.createAllocation);
+  .post(authorization(["admin", "common"]), AllocationsController.authorizeWriteOperation, AllocationsController.createAllocation);
 
 allocationsRouter.route("/:id")
   .get(authorization(["admin", "common"]), AllocationsController.fetchSingleAllocation)
-  .delete(authorization(["admin", "common"]), AllocationsController.deleteAllocation);
+  .delete(authorization(["admin", "common"]), AllocationsController.authorizeWriteOperation, AllocationsController.deleteAllocation);

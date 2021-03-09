@@ -1,4 +1,5 @@
 import express from "express";
+import { AllocationsController } from "../controllers/AllocationsController.js";
 import { RoomsController } from "../controllers/RoomsController.js";
 import { authentication } from "../middlewares/authentication.js";
 import { authorization } from "../middlewares/authorization.js";
@@ -16,4 +17,4 @@ roomsRouter.route("/:id")
   .patch(authorization(["admin"]), RoomsController.updateRoom)
   .delete(authorization(["admin"]), RoomsController.deleteRoom);
 
-roomsRouter.get("/:id/allocations", authorization(["admin", "common"]));
+roomsRouter.get("/:id/allocations", authorization(["admin", "common"]), AllocationsController.fetchRoomAllocations);

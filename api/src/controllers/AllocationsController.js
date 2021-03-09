@@ -1,4 +1,6 @@
+import { AuthorizationError } from "../exceptions/AuthorizationError.js";
 import { controllerMethodWrapper } from "../helpers/controllerHelper.js";
+import { authentication } from "../middlewares/authentication.js";
 import { AllocationsService } from "../services/AllocationsService.js";
 
 export class AllocationsController {
@@ -27,14 +29,35 @@ export class AllocationsController {
   });
 
   static fetchUserAllocations = controllerMethodWrapper(async (req, res, next) => {
-    const query = req.query;
+    const { id } = req.params;
+    const query = {
+      userId: id,
+      startDateAfter: req.body["startDateAfter"],
+      startDateBefore: req.body["startDateBefore"]
+    };
     const fetchedAllocations = await AllocationsService.fetchAllocations(query);
     res.send(fetchedAllocations);
   });
 
   static fetchRoomAllocations = controllerMethodWrapper(async (req, res, next) => {
-    const query = req.query;
+    const { id } = req.params;
+    const query = {
+      roomId: id,
+      startDateAfter: req.body["startDateAfter"],
+      startDateBefore: req.body["startDateBefore"]
+    };
     const fetchedAllocations = await AllocationsService.fetchAllocations(query);
     res.send(fetchedAllocations);
+  });
+
+  static authorizeWriteOperation = controllerMethodWrapper(async (req, res, next) => {
+    const authenticatedUser = req.authenticatedUser;
+    const userId = authenticatedUser.id;
+    const userRole = authenticatedUser.role;
+    const receivedUserId = req.params["userId"];
+    if(userRole !== "admin" && 
+       receivedUserId !== userId) {
+      throw new AuthorizationError("As a non-admin user, you cannot create/delete an allocation to another user!", "NonAdminTryingAllocationWriteOperationToAnotherUser");
+    }
   });
 }

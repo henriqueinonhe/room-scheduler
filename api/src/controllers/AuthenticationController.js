@@ -14,7 +14,7 @@ export class AuthenticationController {
     const sessionId = await AuthenticationService.createSession(user);
 
     res.cookie("sessionId", sessionId, {
-      maxAge: 3600 * 1000,
+      maxAge: 3600 * 1000 * 1000,
       sameSite: "Strict"
     });
 

@@ -7,6 +7,8 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
 import Sequelize from "sequelize";
 import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper.js";
+import { Room } from "../models/Room.js";
+import { User } from "../models/User.js";
 
 const { Op } = Sequelize;
 
@@ -17,6 +19,8 @@ export class AllocationsService {
     const {
       userId,
       roomId,
+      userName = "",
+      roomName = "",
       startDateAfter = defaultVeryEarlyDate,
       startDateBefore = defaultVeryLateDate
     } = query;
@@ -32,11 +36,33 @@ export class AllocationsService {
       }
     };
 
-    Object.keys(whereObject).forEach(key => whereObject[key] === undefined && delete whereObject[key]);
-    const fetchedAllocations = await Allocation.findAll({
-      where: whereObject
-    });
+    //Remove undefined values
+    Object.keys(whereObject)
+      .forEach(key => whereObject[key] === undefined && delete whereObject[key]);
 
+    const fetchedAllocations = await Allocation.findAll({
+      where: whereObject,
+      include: [{
+        model: User,
+        attributes: {
+          exclude: ["passwordHash"]
+        },
+        where: {
+          userName: {
+            [Op.like]: `%${userName}%`
+          }
+        }
+      },
+        {
+          model: Room,
+          where: {
+            name: {
+              [Op.like]: `%${roomName}%`
+            }
+          }
+        }
+      ]
+    });
 
     return fetchedAllocations;
   }
@@ -91,9 +117,15 @@ export class AllocationsService {
       validationError.addEntry(new ValidationErrorEntry("Start date is a required field!", "StartDateMissing"));      
     }
 
-    const dateFormatIsValid = new dayjs(startDate, "YYYY-MM-DD HH:mm:ss", true).isValid();
+    const parsedDate = new dayjs(startDate, "YYYY-MM-DD HH:mm:ss", true);
+    const dateFormatIsValid = parsedDate.isValid();
     if(!dateFormatIsValid) {
       validationError.addEntry(new ValidationErrorEntry("Start date is not in the right format (YYYY-MM-DD HH:mm:ss)!", "InvalidStartDateFormat"));
+    }
+    else {
+      if(parsedDate.minute() !== 0 || parsedDate.second() !== 0) {
+        validationError.addEntry(new ValidationErrorEntry("Minutes and seconds must be equal 0!", "MinutesOrSecondNotEqualZero"));
+      }
     }
 
     const conflictingAllocations = await AllocationsService.fetchAllocations({
