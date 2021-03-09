@@ -1,6 +1,5 @@
 import { AuthorizationError } from "../exceptions/AuthorizationError.js";
 import { controllerMethodWrapper } from "../helpers/controllerHelper.js";
-import { authentication } from "../middlewares/authentication.js";
 import { AllocationsService } from "../services/AllocationsService.js";
 
 export class AllocationsController {
