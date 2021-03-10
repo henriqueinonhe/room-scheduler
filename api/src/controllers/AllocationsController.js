@@ -31,8 +31,7 @@ export class AllocationsController {
     const { id } = req.params;
     const query = {
       userId: id,
-      startDateAfter: req.body["startDateAfter"],
-      startDateBefore: req.body["startDateBefore"]
+      ...req.query
     };
     const fetchedAllocations = await AllocationsService.fetchAllocations(query);
     res.send(fetchedAllocations);
@@ -42,8 +41,7 @@ export class AllocationsController {
     const { id } = req.params;
     const query = {
       roomId: id,
-      startDateAfter: req.body["startDateAfter"],
-      startDateBefore: req.body["startDateBefore"]
+      ...req.query
     };
     const fetchedAllocations = await AllocationsService.fetchAllocations(query);
     res.send(fetchedAllocations);

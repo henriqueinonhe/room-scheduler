@@ -65,6 +65,9 @@
           },
           {
             "$ref": "#/components/parameters/CreatedAfterParameter"
+          },
+          {
+            "$ref": "#/components/parameters/PageParameter"
           }
         ],
         "responses": {
@@ -296,6 +299,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/PageParameter"
           }
         ],
         "responses": {
@@ -351,6 +357,9 @@
           },
           {
             "$ref": "#/components/parameters/CreatedAfterParameter"
+          },
+          {
+            "$ref": "#/components/parameters/PageParameter"
           }
         ],
         "responses": {
@@ -571,6 +580,9 @@
           },
           {
             "$ref": "#/components/parameters/StartDateBeforeParameter"
+          },
+          {
+            "$ref": "#/components/parameters/PageParameter"
           }
         ],
         "responses": {
@@ -636,6 +648,9 @@
           },
           {
             "$ref": "#/components/parameters/StartDateBeforeParameter"
+          },
+          {
+            "$ref": "#/components/parameters/PageParameter"
           }
         ],
         "responses": {
@@ -1059,6 +1074,14 @@
         "description": "Start date upper bound",
         "schema": {
           "type" : "string"
+        }
+      },
+      "PageParameter": {
+        "in": "query",
+        "name": "page",
+        "description": "Page",
+        "schema": {
+          "type": "number"
         }
       }
     },

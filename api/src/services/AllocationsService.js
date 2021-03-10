@@ -9,12 +9,15 @@ import Sequelize from "sequelize";
 import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper.js";
 import { Room } from "../models/Room.js";
 import { User } from "../models/User.js";
+import { paginate } from "../helpers/paginationHelper.js";
 
 const { Op } = Sequelize;
 
 dayjs.extend(customParseFormat);
 
 export class AllocationsService {
+  static resultsPerPage = 50;
+
   static async fetchAllocations(query) {
     const {
       userId,
@@ -22,7 +25,8 @@ export class AllocationsService {
       userName = "",
       roomName = "",
       startDateAfter = defaultVeryEarlyDate,
-      startDateBefore = defaultVeryLateDate
+      startDateBefore = defaultVeryLateDate,
+      page = 1
     } = query;
 
     const whereObject = {
@@ -40,28 +44,33 @@ export class AllocationsService {
     Object.keys(whereObject)
       .forEach(key => whereObject[key] === undefined && delete whereObject[key]);
 
-    const fetchedAllocations = await Allocation.findAll({
-      where: whereObject,
-      include: [{
-        model: User,
-        attributes: {
-          exclude: ["passwordHash"]
-        },
-        where: {
-          userName: {
-            [Op.like]: `%${userName}%`
-          }
-        }
-      },
-        {
-          model: Room,
+    const fetchedAllocations = await paginate({
+      model: Allocation,
+      queryConfig: {
+        where: whereObject,
+        include: [{
+          model: User,
+          attributes: {
+            exclude: ["passwordHash"]
+          },
           where: {
-            name: {
-              [Op.like]: `%${roomName}%`
+            userName: {
+              [Op.like]: `%${userName}%`
             }
           }
-        }
-      ]
+        },
+          {
+            model: Room,
+            where: {
+              name: {
+                [Op.like]: `%${roomName}%`
+              }
+            }
+          }
+        ]
+      },
+      resultsPerPage: AllocationsService.resultsPerPage,
+      page
     });
 
     return fetchedAllocations;

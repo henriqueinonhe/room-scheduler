@@ -4,6 +4,7 @@ import Sequelize from "sequelize";
 import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper.js";
 import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError.js";
 import { AuthenticationService } from "./AuthenticationService.js";
+import { paginate } from "../helpers/paginationHelper.js";
 
 const { Op } = Sequelize;
 
@@ -11,6 +12,8 @@ export class UsersService {
   static hidePasswordUserAttributeSelection = {
     exclude: ["passwordHash"]
   };
+
+  static resultsPerPage = 20;
   
   static async validateUserName(userName) {
     const entries = [];
@@ -69,25 +72,31 @@ export class UsersService {
       userName = "",
       role = "",
       createdAfter = defaultVeryEarlyDate,
-      createdBefore = defaultVeryLateDate
+      createdBefore = defaultVeryLateDate,
+      page = 1
     } = query;
 
-    const fetchedUsers = await User.findAll({
-      where: {
-        userName: {
-          [Op.like]: `%${userName}%`
+    const fetchedUsers = await paginate({
+      model: User,
+      queryConfig: {
+        where: {
+          userName: {
+            [Op.like]: `%${userName}%`
+          },
+          role: {
+            [Op.like]: `%${role}%`
+          },
+          createdAt: {
+            [Op.between]: [
+              createdAfter,
+              createdBefore
+            ]
+          }
         },
-        role: {
-          [Op.like]: `%${role}%`
-        },
-        createdAt: {
-          [Op.between]: [
-            createdAfter,
-            createdBefore
-          ]
-        }
+        attributes: UsersService.hidePasswordUserAttributeSelection
       },
-      attributes: UsersService.hidePasswordUserAttributeSelection
+      resultsPerPage: UsersService.resultsPerPage,
+      page
     });
 
     return fetchedUsers;

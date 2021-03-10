@@ -3,10 +3,13 @@ import { ValidationError, ValidationErrorEntry } from "../exceptions/ValidationE
 import Sequelize from "sequelize";
 import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper.js";
 import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError.js";
+import { paginate } from "../helpers/paginationHelper.js";
 
 const { Op } = Sequelize;
 
 export class RoomsService {
+  static resultsPerPage = 20;
+
   static async validateRoomName(name) {
     const errors = [];
 
@@ -43,21 +46,27 @@ export class RoomsService {
     const {
       name = "",
       createdAfter = defaultVeryEarlyDate,
-      createdBefore = defaultVeryLateDate
+      createdBefore = defaultVeryLateDate,
+      page = 1
     } = query;
 
-    return await Room.findAll({
-      where: {
-        name: {
-          [Op.like]: `%${name}%`
-        },
-        createdAt: {
-          [Op.between]: [
-            createdAfter,
-            createdBefore
-          ]
+    return await paginate({
+      model: Room,
+      queryConfig: {
+        where: {
+          name: {
+            [Op.like]: `%${name}%`
+          },
+          createdAt: {
+            [Op.between]: [
+              createdAfter,
+              createdBefore
+            ]
+          }
         }
-      }
+      },
+      resultsPerPage: RoomsService.resultsPerPage,
+      page
     });
   }
 

@@ -3,7 +3,8 @@ import { UsersService } from "../services/UsersService.js";
 
 export class UsersController {
   static fetchUsers = controllerMethodWrapper(async (req, res, next) => {
-    const fetchedUsers = await UsersService.fetchUsers(req.query)
+    const { query } = req;
+    const fetchedUsers = await UsersService.fetchUsers(query)
     res.send(fetchedUsers);
   });
 
