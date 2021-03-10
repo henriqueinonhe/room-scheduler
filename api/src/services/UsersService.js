@@ -132,7 +132,7 @@ export class UsersService {
       throw validationError;
     }
 
-    const passwordHash = await hashPassword(password);
+    const passwordHash = await AuthenticationService.hashPassword(password);
     const user = await User.create({
       userName: trimmedUserName,
       passwordHash,

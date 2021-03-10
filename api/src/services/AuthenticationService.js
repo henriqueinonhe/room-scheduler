@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { User } from "../models/User.js";
 import { Session } from "../models/Session.js";
+import { AuthenticationError } from "../exceptions/AuthenticationError.js";
 
 export class AuthenticationService {
   static async hashPassword(password) {

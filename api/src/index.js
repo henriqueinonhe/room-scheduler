@@ -11,8 +11,6 @@ import { allocationsRouter } from "./routers/allocationsRouter.js";
 
 dotenv.config();
 
-console.log(process.env.DB_DATABASE);
-
 async function main() {
   const app = express();
   app.use(express.json());

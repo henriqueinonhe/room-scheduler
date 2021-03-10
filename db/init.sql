@@ -24,7 +24,7 @@ CREATE TABLE `Sessions` (
   PRIMARY KEY (`id`),
   KEY `Sessions_FK` (`fkUser`),
   CONSTRAINT `Sessions_FK_1` FOREIGN KEY (`fkUser`) REFERENCES `Users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 CREATE TABLE `Allocations` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
@@ -37,4 +37,4 @@ CREATE TABLE `Allocations` (
   KEY `Allocations_FK_1` (`fkRoom`),
   CONSTRAINT `Allocations_FK` FOREIGN KEY (`fkRoom`) REFERENCES `Rooms` (`id`) ON DELETE CASCADE,
   CONSTRAINT `Allocations_FK_1` FOREIGN KEY (`fkUser`) REFERENCES `Users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
