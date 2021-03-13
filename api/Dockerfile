@@ -4,6 +4,7 @@ WORKDIR /home/app
 
 COPY . .
 
+RUN apk add git
 RUN npm ci
 
 EXPOSE 80

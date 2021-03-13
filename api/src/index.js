@@ -14,11 +14,18 @@ dotenv.config();
 async function main() {
   const app = express();
   app.use(express.json());
-  app.use(cors());
+  app.use(cors({
+    origin: true,
+    exposedHeaders: "*",
+    allowedHeaders: "*",
+    methods: "*",
+    credentials: true,
+    preflightContinue: true
+  }));
   app.use(cookieParser());
   app.use("/docs", express.static("../docs"));
   
-  app.get("/check", (req, res) => {
+  app.get("/check", (req, res) => { 
     res.send("API is up and running!");
   });
   app.use("/authentication", authenticationRouter);

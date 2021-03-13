@@ -13,9 +13,12 @@ export class AuthenticationController {
     await AuthenticationService.clearUserSessions(user);
     const sessionId = await AuthenticationService.createSession(user);
 
+    console.log(req.headers);
+
     res.cookie("sessionId", sessionId, {
       maxAge: 3600 * 1000 * 1000,
-      sameSite: "Strict"
+      sameSite: "Strict",
+      httpOnly: true
     });
 
     res.send(user);
@@ -30,7 +33,7 @@ export class AuthenticationController {
     await AuthenticationService.clearSessionById(sessionId);
 
     res.cookie("sessionId", "", { maxAge: 0 }); //Unset cookie
-    res.send("Logout successful!");
+    res.send({message: "Logout successful!"});
   });
 
   static async checkSession(req, res, next) {

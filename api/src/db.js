@@ -10,7 +10,8 @@ export const db = new Sequelize(
   process.env.DB_PASSWORD, {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
-    dialect: "mysql"
+    dialect: "mysql",
+    logging: JSON.parse(process.env.DB_LOGGING)
   },
 );
 

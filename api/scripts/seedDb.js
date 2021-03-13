@@ -1,6 +1,6 @@
 import { db } from "../src/db.js";
 
-async function seedUsers() {
+export async function seedUsers() {
   await db.query(`
     INSERT INTO RoomScheduler.Users (userName,passwordHash,\`role\`,createdAt) VALUES
     ('admin','dd64c4e90406fee64f9cbd8f73ee045d7a7322132a603a29f5f37830a1b41dbd','admin','2021-03-09 00:00:00'),
@@ -32,7 +32,7 @@ async function seedUsers() {
   `);
 }
 
-async function seedRooms() {
+export async function seedRooms() {
   await db.query(`
     INSERT INTO RoomScheduler.Rooms (name,createdAt) VALUES
     ('Room 1', '2021-03-10 01:30:30'),
@@ -85,13 +85,13 @@ function randomNumber(max, min = 0) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-async function seedAllocations() {
+export async function seedAllocations() {
 }
 
-async function main() {
+export async function seedDb() {
   await seedUsers();
   await seedRooms();
   await seedAllocations();
 }
 
-main();
+seedDb();

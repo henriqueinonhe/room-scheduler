@@ -5,6 +5,7 @@ import { defaultVeryEarlyDate, defaultVeryLateDate } from "../helpers/dateHelper
 import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError.js";
 import { AuthenticationService } from "./AuthenticationService.js";
 import { paginate } from "../helpers/paginationHelper.js";
+import { AuthorizationError } from "../exceptions/AuthorizationError.js";
 
 const { Op } = Sequelize;
 
@@ -156,9 +157,12 @@ export class UsersService {
 
     const validationError = new ValidationError();
 
+    if(receivedUserName) {
+      validationError.addEntry(...await UsersService.validateUserName(userName));
+    }
+
     const userName = receivedUserName ? 
                      receivedUserName.trim() : userToBeUpdated.userName;
-    validationError.addEntry(...UsersService.validateUserName(userName));
 
     if(receivedPassword) {
       validationError.addEntry(...await UsersService.validatePassword(receivedPassword));
@@ -176,6 +180,8 @@ export class UsersService {
     userToBeUpdated.passwordHash = passwordHash;
     await userToBeUpdated.save();
 
+    await AuthenticationService.clearUserSessions(userToBeUpdated);
+
     const {
       passwordHash : dummy,
       ...userWithoutPassword
@@ -192,6 +198,8 @@ export class UsersService {
       passwordHash : dummy,
       ...userWithoutPassword
     } = user.get();
+
+    await AuthenticationService.clearUserSessions(user);
 
     return userWithoutPassword;
   }
