@@ -8,12 +8,14 @@ services:
       - db
     ports:
       - 31414:80
+    env_file:
+      - ./api/.env
 
   db:
     image: mysql
     container_name: RoomSchedulerDB
     environment:
-      MYSQL_USER: "admin"
+      MYSQL_USER: admin
       MYSQL_PASSWORD: dubbsdibbets
       MYSQL_ROOT_PASSWORD: dubbsdibbets
       MYSQL_DATABASE: RoomScheduler
