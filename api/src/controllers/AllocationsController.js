@@ -33,6 +33,14 @@ export class AllocationsController {
       userId: id,
       ...req.query
     };
+    
+    const authenticatedUser = req.authenticatedUser;
+
+    if(authenticatedUser.role !== "admin" && 
+       parseInt(id) !== authenticatedUser.id) {
+      throw new AuthorizationError("You cannot see the allocations of other users!", "CommonUserTryingToSeeOtherUsersAllocations");
+    }
+
     const fetchedAllocations = await AllocationsService.fetchAllocations(query);
     res.send(fetchedAllocations);
   });
@@ -51,10 +59,13 @@ export class AllocationsController {
     const authenticatedUser = req.authenticatedUser;
     const userId = authenticatedUser.id;
     const userRole = authenticatedUser.role;
-    const receivedUserId = req.params["userId"];
+    const receivedUserId = req.body["userId"];
+
     if(userRole !== "admin" && 
-       receivedUserId !== userId) {
+       parseInt(receivedUserId) !== userId) {
       throw new AuthorizationError("As a non-admin user, you cannot create/delete an allocation to another user!", "NonAdminTryingAllocationWriteOperationToAnotherUser");
     }
+
+    next();
   });
 }

@@ -17,4 +17,4 @@ roomsRouter.route("/:id")
   .patch(authorization(["admin"]), RoomsController.updateRoom)
   .delete(authorization(["admin"]), RoomsController.deleteRoom);
 
-roomsRouter.get("/:id/allocations", authorization(["admin", "common"]), AllocationsController.fetchRoomAllocations);
+roomsRouter.get("/:id/allocations", authentication, authorization(["admin", "common"]), AllocationsController.fetchRoomAllocations);

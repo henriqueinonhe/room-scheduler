@@ -137,13 +137,24 @@ export class AllocationsService {
       }
     }
 
-    const conflictingAllocations = await AllocationsService.fetchAllocations({
+    const roomConflictingAllocations = await AllocationsService.fetchAllocations({
       roomId,
-      startDate
+      startDateAfter: startDate,
+      startDateBefore: startDate
     });
 
-    if(conflictingAllocations.length !== 0) {
+    if(roomConflictingAllocations.meta.total !== 0) {
       validationError.addEntry(new ValidationErrorEntry("This room is already allocated at this date!", "AllocationConflict"));
+    }
+
+    const userConflictingAllocations = await AllocationsService.fetchAllocations({
+      userId,
+      startDateAfter: startDate,
+      startDateBefore: startDate
+    });
+
+    if(userConflictingAllocations.meta.total !== 0) {
+      validationError.addEntry(new ValidationErrorEntry(`You already have an allocation at this date (${JSON.stringify(userConflictingAllocations.data)})!`, "AllocationConflict"))
     }
 
     if(validationError.hasErrors()) {

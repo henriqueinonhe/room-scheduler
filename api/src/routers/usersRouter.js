@@ -15,4 +15,4 @@ usersRouter.route("/:id")
   .patch(authentication, authorization(["admin"]), UsersController.updateUser)
   .delete(authentication, authorization(["admin"]), UsersController.deleteUser);
 
-usersRouter.get("/:id/allocations", authorization(["admin", "common"]), AllocationsController.fetchUserAllocations);
+usersRouter.get("/:id/allocations", authentication, authorization(["admin", "common"]), AllocationsController.fetchUserAllocations);

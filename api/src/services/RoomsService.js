@@ -111,7 +111,7 @@ export class RoomsService {
     const validationError = new ValidationError([]);
 
     const name = receivedName || updatedRoom.name;
-    validationError.addEntry(...await RoomsController.validateRoomName(receivedName));
+    validationError.addEntry(...await RoomsService.validateRoomName(receivedName));
 
     if(validationError.hasErrors()) {
       throw validationError;
