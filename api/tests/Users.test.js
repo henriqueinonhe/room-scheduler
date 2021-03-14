@@ -13,7 +13,6 @@ afterAll(async () => {
   await db.close();
 });
 
-
 describe("Fetch Users", () => {
   describe("Pre Conditions", () => {
     test("Check authentication", async () => {
