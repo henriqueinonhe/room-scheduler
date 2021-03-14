@@ -8,8 +8,13 @@ services:
       - db
     ports:
       - 31414:80
-    env_file:
-      - ./api/.env
+    environment:
+      DB_HOST: db
+      DB_USER: admin
+      DB_PASSWORD: dubbsdibbets
+      DB_DATABASE: RoomScheduler
+      DB_PORT: 3306
+      DB_LOGGING: "false"
 
   db:
     image: mysql
